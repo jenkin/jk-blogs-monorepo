@@ -1,0 +1,17 @@
+{
+  "extends": "../packages/theme/tsconfig.json",
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "paths": {
+      "@/assets/*": ["src/assets/*", "../../packages/theme/src/assets/*"],
+      "@/components/*": ["src/components/*", "../../packages/theme/src/components/*"],
+      "@/layouts/*": ["src/layouts/*", "../../packages/theme/src/layouts/*"],
+      "@/utils": ["../../packages/theme/src/utils/index.ts"],
+      "@/utils/*": ["../../packages/theme/src/utils/*"],
+      "@/plugins/*": ["src/plugins/*", "../../packages/theme/src/plugins/*"],
+      "@/pages/*": ["src/pages/*", "../../packages/theme/src/pages/*"],
+      "@/types": ["../../packages/theme/src/types/index.ts"],
+      "@/site-config": ["src/site.config.ts"]
+    }
+  }
+}

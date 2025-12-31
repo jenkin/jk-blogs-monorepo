@@ -1,0 +1,37 @@
+{
+  "name": "jk-blogs-monorepo",
+  "version": "1.0.0",
+  "description": "Monorepo for jenkin's blogs powered by Astro.",
+  "keywords": [],
+  "author": "Alessio Cimarelli <me@jenkin.dev> (https://jenkin.dev)",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run --workspace=apps dev",
+    "dev:x.ombie.cash": "npm run --workspace=x.ombie.cash dev",
+    "dev:home.jenkin.app": "npm run --workspace=home.jenkin.app dev",
+    "dev:logs.jenkin.dev": "npm run --workspace=logs.jenkin.dev dev",
+    "build": "npm run --workspace=apps build",
+    "build:x.ombie.cash": "npm run --workspace=x.ombie.cash build",
+    "build:home.jenkin.app": "npm run --workspace=home.jenkin.app build",
+    "build:logs.jenkin.dev": "npm run --workspace=logs.jenkin.dev build",
+    "preview": "npm run --workspace=apps preview",
+    "preview:x.ombie.cash": "npm run --workspace=x.ombie.cash preview",
+    "preview:home.jenkin.app": "npm run --workspace=home.jenkin.app preview",
+    "preview:logs.jenkin.dev": "npm run --workspace=logs.jenkin.dev preview",
+    "save": "npm run --workspace=apps save && git commit -a",
+    "deploy": "npm run --workspace=apps deploy && git push",
+    "sync": "npm run --workspace=packages/theme --workspace=apps sync",
+    "check": "npm run --workspace=apps check",
+    "format": "npm run --workspace=apps format",
+    "lint": "npm run --workspace=apps lint",
+    "clean": "npm run --workspace=apps clean",
+    "reset": "rm -fr node_modules/ ./apps/**/.astro/ ./apps/**/node_modules/ ./packages/**/node_modules/"
+  },
+  "dependencies": {
+    "astro-pages": "^0.3.1"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "x.ombie.cash",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "Alessio Cimarelli <me@jenkin.dev> (https://jenkin.dev)",
+  "license": "CC-BY-4.0",
+  "scripts": {
+    "dev": "astro dev",
+    "dev:check": "astro check --watch & astro dev",
+    "build": "astro-pure check && astro check && mv dist/.git ./_git && astro build && mv ./_git dist/.git",
+    "preview": "astro preview",
+    "save": "cd dist/ && git add . && git commit -m 'Updates' && cd ..",
+    "deploy": "cd dist/ && git push && cd ..",
+    "sync": "astro sync",
+    "check": "astro check",
+    "astro": "astro",
+    "pure": "astro-pure",
+    "format": "prettier --write  '**/*.{js,jsx,ts,tsx,md,mdx,astro}'",
+    "lint": "eslint --fix 'src/**/*.{js,ts,jsx,tsx,astro}'",
+    "yijiansilian": "bun lint && bun sync && bun check && bun format",
+    "clean": "rm -rf .astro .vercel dist",
+    "cache:avatars": "tsx preset/scripts/cacheAvatars.ts"
+  }
+}

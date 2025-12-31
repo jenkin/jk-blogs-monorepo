@@ -1,0 +1,12 @@
+[submodule "packages/theme"]
+	path = packages/theme
+	url = https://github.com/jenkin/astro-theme-pure-brutalism.git
+[submodule "apps/home.jenkin.app/dist"]
+	path = apps/home.jenkin.app/dist
+	url = https://github.com/jenkin/home.jenkin.app.git
+[submodule "apps/logs.jenkin.dev/dist"]
+	path = apps/logs.jenkin.dev/dist
+	url = https://github.com/jenkin/logs.jenkin.dev.git
+[submodule "apps/x.ombie.cash/dist"]
+	path = apps/x.ombie.cash/dist
+	url = https://github.com/jenkin/x.ombie.cash.git
