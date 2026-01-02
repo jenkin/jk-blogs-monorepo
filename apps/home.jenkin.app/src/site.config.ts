@@ -2,7 +2,7 @@ import baseConfig from "../../../shared/site.config";
 
 export default {
   ...baseConfig,
-  title: "JENKIN'S 🛡️ HOMELAB",
+  title: "JENKIN'S 🛡️ HOME",
   description: 'The public journey of a self-hosting degen',
   header: {
     menu: [

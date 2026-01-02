@@ -22,7 +22,7 @@
     "preview:x.ombie.cash": "npm run --workspace=x.ombie.cash preview",
     "preview:home.jenkin.app": "npm run --workspace=home.jenkin.app preview",
     "preview:logs.jenkin.dev": "npm run --workspace=logs.jenkin.dev preview",
-    "save": "npm run --workspace=apps save && git commit -a",
+    "save": "npm run --workspace=apps save && git add . && git commit -am 'feat: update contents'",
     "deploy": "npm run --workspace=apps deploy && git push",
     "sync": "npm run --workspace=packages/theme --workspace=apps sync",
     "check": "npm run --workspace=apps check",

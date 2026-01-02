@@ -1,0 +1,61 @@
+---
+title: 'Setup'
+description: 'Storage and network management'
+order: 2
+---
+import { Aside, Steps } from 'astro-pure/user'
+
+There are tons of configurations, but the defaults are pretty good for basic needs.
+Here I'll focus on my own setup, please refer to the [official documentation](https://pve.proxmox.com/pve-docs/) for further details.
+
+## Secure Shell
+
+Sometimes you need to connect to the underlying system (Debian 13 for Proxmox v9) from a console to perform low level operations.
+I suggest you to properly configure SSH and register your public key to connect without password prompting.
+
+```txt title="~/.ssh/config"
+Host *
+    ServerAliveInterval 30
+
+Host pve.local
+    HostName 192.168.X.X
+    User root
+    Port 22
+```
+
+Then run `ssh-copy-id pve.local` once and now you can connect simply using `ssh pve.local`.
+
+<Aside type="tip">
+    Run a full upgrade of the system after the very first boot: `apt update && apt dist-upgrade`.
+</Aside>
+
+## Disks and volumes
+
+My server has [three disks](/lab/infrastructure/server): the slower and smaller one (1 TB) is for system, configurations, and VM/CT images,
+the others two are mounted in [RAID0](https://en.wikipedia.org/wiki/Standard_RAID_levels#RAID_0) using [ZFS](https://en.wikipedia.org/wiki/ZFS)
+and they are intended for data volumes.
+
+<Aside type="caution">
+    Always double check the device names!
+</Aside>
+
+<Steps>
+    1. identify the device names of the two disks: `lsblk`
+    2. Create the RAID0 pool: `zpool create -o ashift=12 zpool /dev/nvmeXnY /dev/nvmeXnY` (you can change `zpool` name)
+    3. Set some useful parameters:
+        ```shell
+        zfs set compression=lz4 zpool
+        zfs set checksum=on zpool
+        zfs set recordsize=128K zpool
+        zfs set sync=always zpool
+        ```
+
+    4. Check the pool status: `zpool status -v`
+    5. Expose the pool to PVE: `pvesm add zfspool local-data --pool zpool` (you can change `local-data` name)
+</Steps>
+
+Now I have 8 super-fast terabytes where I can store VM and CT data.
+
+<Aside type="danger">
+    With RAID0 you have no replication! You pay the speed and the double size with low resilience (if a device dies, you loose all data).
+</Aside>
