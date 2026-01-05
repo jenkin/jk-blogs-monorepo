@@ -1,0 +1,110 @@
+---
+title: 'Exit nodes'
+description: 'Obligatory route'
+order: 4
+---
+import { Aside, Steps, Tabs, TabItem } from 'astro-pure/user'
+
+Every node that want to join your tailscale network must have [Tailscale Client](https://tailscale.com/download) installed (see [regular nodes](/lab/tailscale/regular-nodes)).
+
+## Installation
+
+Supposing a GNU/Linux Debian 13 Trixie operating system, you can install it with `curl -fsSL https://tailscale.com/install.sh | sh`.
+
+## Configuration
+
+Then you need to join the network using a running [headscale server](/lab/tailscale/headscale), but this time you need to declare the node as an exit one.
+
+```shell
+tailscale up \
+    --login-server=https://hs.yourdomain.app \
+    --advertise-exit-node \
+    --accept-routes \
+    --accept-dns=true \
+    --hostname=your-node-name
+```
+
+The first time you need to accept the new node following the instructions shown.
+
+Then you can check the list of registered nodes on headscale server with `headscale nodes list`.
+
+The exit node should be listed also as route: `headscale nodes list-routes`.
+
+### Firewall setup
+
+If your node is exposed to Internet (ie. a VPS with a public IP) and you want to control open ports,
+you can allow udp traffic on port 41641. Using ufw: `ufw allow 41641/udp`.
+
+### Incoming traffic
+
+If you need to forward incoming traffic to another node on tailscale network,
+you need to allow forwarding at kernel and firewall level, and incoming traffic
+on tailscale network interface.
+
+<Steps>
+    1. Allow forwarding (kernel).
+        ```shell
+        echo 'net.ipv4.ip_forward = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
+        echo 'net.ipv6.conf.all.forwarding = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
+        sysctl -p /etc/sysctl.d/99-tailscale.conf
+        ```
+    2. Allow forwarding (firewall): `ufw default allow forward`
+    3. Allow tailscale incoming traffic: `ufw allow in on tailscale0`
+</Steps>
+
+Now you have two options: use a reverse proxy or configure a NAT.
+
+<Tabs>
+  <TabItem label="Reverse proxy">
+    Incoming web traffic (on ports 80 or 443) can be managed by a reverse proxy (ie. Caddy)
+    and forwarded to a node using tailscale interface.
+
+    ```txt title="/etc/caddy/Caddyfile"
+    public.yourdomain.app {
+        reverse_proxy 100.64.0.X:8080
+    }
+    ```
+
+    Then apply changes: `systemctl restart caddy`.
+  </TabItem>
+  <TabItem label="NAT">
+    For generic tcp/udp traffic you can forward an exposed port of the node
+    to a port of another node on tailscale network.
+
+    ```txt title="/etc/ufw/before.rules"
+    *nat
+    :PREROUTING ACCEPT [0:0]
+    -A PREROUTING -p tcp --dport 9999 -j DNAT --to-destination 100.64.0.X:9999
+    -A POSTROUTING -p tcp -d 100.64.0.X --dport 9999 -j MASQUERADE
+    COMMIT
+    ```
+
+    <Aside type="caution">
+        This `*nat` block should be on top of the file before `*filter` block!
+        And don't forget the `COMMIT`!
+    </Aside>
+
+    Of course the port must be open: `ufw allow 9999/tcp`.
+
+    Then apply changes: `systemctl restart ufw`.
+  </TabItem>
+</Tabs>
+
+### Kernel tweaks
+
+Update the Generic Receive Offload (GRO) settings if needed.
+
+<Steps>
+    1. Install networkd-dispatcher: `apt install networkd-dispatcher`
+    2. Create new rule.
+        ```shell
+        printf \
+            '#!/bin/sh\n\nethtool -K %s rx-udp-gro-forwarding on rx-gro-list off \n' \
+            "$(ip -o route get 8.8.8.8 | cut -f 5 -d " ")" | \
+            tee /etc/networkd-dispatcher/routable.d/50-tailscal
+        ```
+    3. Make it executable: `chmod 755 /etc/networkd-dispatcher/routable.d/50-tailscale`
+    4. Run it: `/etc/networkd-dispatcher/routable.d/50-tailscale`
+</Steps>
+
+See the [official documentation](https://tailscale.com/kb/1320/performance-best-practices#linux-optimizations-for-subnet-routers-and-exit-nodes) for details.
